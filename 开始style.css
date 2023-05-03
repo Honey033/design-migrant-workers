@@ -1,0 +1,24 @@
+.centered-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+h1 {size: 132px; color: rgb(255, 217, 0);}
+p {size: 69px; color: rgb(255, 234, 0);}
+h1:hover{color: blueviolet; size:322px ;}
+p:hover {
+    color: rgb(30, 0, 255);
+  }
+
+  footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+  }
+
+  body {
+    background-color: gray;
+  }
