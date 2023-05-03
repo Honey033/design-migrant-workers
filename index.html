@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>设计民工</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <link rel="icon" href="#" />
+    <script src="./matter.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        position: relative;
+      }
+      body .item {
+        position: absolute;
+        left: 8px;
+        cursor: pointer;
+        z-index: 2;
+      }
+      body .item:hover {
+        transform: scale(1.3);
+      }
+      body .item:hover {
+        transition: all 0.5s;
+      }
+      body .item:nth-child(9) {
+        top: 100px;
+      }
+      body .item:nth-child(10) {
+        top: 190px;
+      }
+      body .item:nth-child(11) {
+        top: 238px;
+      }
+      body .item:nth-child(12) {
+        top: 416px;
+      }
+      body .item:nth-child(13) {
+        top: 644px;
+      }
+      body .item:nth-child(14) {
+        top: 693px;
+      }
+      video {
+        position: absolute;
+        width: 1700px;
+        display: none;
+        z-index: 3;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas
+      id="canvas"
+      width="1200"
+      height="1040"
+      style="position: absolute; left: 70px"
+    ></canvas>
+
+    <video src="assests/image/吸色视频.mp4" autoplay muted id="video1"></video>
+    <video src="assests/image/花花剪切.mp4" autoplay muted id="video2"></video>
+    <video src="assests/image/钢笔视频2.mp4" autoplay muted id="video3"></video>
+    <video src="assests/image/水桶2视频.mp4" autoplay muted id="video4"></video>
+    <video src="assests/image/仿制图章视频.mp4" autoplay muted id="video5"></video>
+    <video src="assests/image/画笔视频2.mp4" autoplay muted id="video6"></video>
+    <img src="assests/image/页面ai 打印+砖头-01.png" width="1700px" />
+    <a class="item" id="button1">
+      <img src="assests/image/吸管改 [已恢复]-04.png" width="28px" />
+    </a>
+    <a class="item" id="button2">
+      <img src="assests/image/剪刀 改 [已恢复]-09.png" width="28px" />
+    </a>
+    <a class="item" id="button3">
+      <img src="assests/image/钢笔改 [已恢复]-07.png" width="28px" />
+    </a>
+    <a class="item" id="button4">
+      <img src="assests/image/水桶 改 [已恢复]-06.png" width="28px" />
+    </a>
+    <a class="item" id="button5">
+      <img src="assests/image/仿制图章改 [已恢复]-05.png" width="28px" />
+    </a>
+    <a class="item" id="button6">
+      <img src="assests/image/画笔改 [已恢复]-08.png" width="28px" />
+    </a>
+    <!-- <img src="assests/image/吸管.png" width="25px" a href="吸色页面.html" />
+    <img src="assests/image/剪刀.png" width="25px" a href="剪裁视频.html" />
+    <img src="assests/image/钢笔.png" width="25px" a href="钢笔页面.html" />
+    <img src="assests/image/水桶.png" width="25px" a href="水桶页面.html" />
+    <img src="assests/image/仿制图章.png" width="25px" a href="图章页面.html" />
+    <img src="assests/image/画笔.png" width="25px" a href="画笔页面.html" /> -->
+    <script>
+      const canvas = document.getElementById('canvas')
+      const ctx = canvas.getContext('2d')
+
+      // 初始化Matter.js引擎
+      const engine = Matter.Engine.create()
+      const world = engine.world
+
+      const imageFileNames = [
+        './assests/image/吸色砖.png',
+        './assests/image/剪裁砖.png',
+        './assests/image/钢笔砖.png',
+        './assests/image/水桶砖.png',
+        './assests/image/仿制图章砖.png',
+        './assests/image/画笔砖.png'
+      ]
+
+      const imageBodies = []
+      const bodyWidth = 250
+      const bodyHeight = 150
+      let images
+
+      // 加载所有图片
+      const loadImages = (sources, callback) => {
+        images = {}
+        let loadedImages = 0
+        let numImages = 0
+
+        for (let src in sources) {
+          numImages++
+        }
+        for (let src in sources) {
+          images[src] = new Image()
+          images[src].src = sources[src]
+          images[src].onload = () => {
+            if (++loadedImages >= numImages) {
+              callback(images)
+            }
+          }
+        }
+      }
+
+      const createImageBody = (fileName) => {
+        const posX = Math.random() * (canvas.width - bodyWidth) + bodyWidth / 2
+        const posY = 0
+
+        const body = Matter.Bodies.rectangle(
+          posX,
+          posY,
+          bodyWidth,
+          bodyHeight,
+          {
+            render: { sprite: { texture: images[fileName] } }
+          }
+        )
+
+        const randomVelocity = {
+          x: 0,
+          y: Math.random() * 2 + 1
+        }
+        Matter.Body.setVelocity(body, randomVelocity)
+
+        imageBodies.push(body)
+        Matter.World.add(world, body)
+      }
+
+      // 创建物体并开始更新循环
+      const startSimulation = () => {
+        // 创建地面物体
+        const ground = Matter.Bodies.rectangle(
+          canvas.width / 2,
+          canvas.height,
+          canvas.width,
+          10,
+          {
+            isStatic: true
+          }
+        )
+        Matter.World.add(world, ground)
+        // 创建边界
+        const leftWall = Matter.Bodies.rectangle(
+          0,
+          canvas.height / 2,
+          10,
+          canvas.height,
+          {
+            isStatic: true
+          }
+        )
+        const rightWall = Matter.Bodies.rectangle(
+          canvas.width,
+          canvas.height / 2,
+          10,
+          canvas.height,
+          {
+            isStatic: true
+          }
+        )
+        Matter.World.add(world, [leftWall, rightWall])
+        // 更新物体的位置
+        function update() {
+          Matter.Engine.update(engine, 1000 / 60)
+          ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+          // 在画布上绘制物体
+          imageBodies.forEach((body) => {
+            const { position, angle } = body
+            const { x, y } = position
+
+            ctx.save()
+            ctx.translate(x, y)
+            ctx.rotate(angle)
+            ctx.drawImage(
+              body.render.sprite.texture,
+              -bodyWidth / 2,
+              -bodyHeight / 2,
+              bodyWidth,
+              bodyHeight
+            )
+            ctx.restore()
+          })
+
+          requestAnimationFrame(update)
+        }
+
+        update()
+      }
+
+      loadImages(
+        imageFileNames.reduce((obj, fileName) => {
+          obj[fileName] = fileName
+          return obj
+        }, {}),
+        startSimulation
+      )
+
+      // 为按钮添加点击事件
+      document.getElementById('button1').addEventListener('click', () => {
+        document.getElementById('video1').style.display = 'block'
+        document.getElementById('video1').play()
+        document.getElementById('video1').currentTime = 0
+        setTimeout(() => {
+          document.getElementById('video1').style.display = 'none'
+          createImageBody(imageFileNames[0])
+        }, 10000)
+      })
+      document.getElementById('button2').addEventListener('click', () => {
+        document.getElementById('video2').style.display = 'block'
+        document.getElementById('video2').play()
+        document.getElementById('video2').currentTime = 0
+        setTimeout(() => {
+          document.getElementById('video2').style.display = 'none'
+          createImageBody(imageFileNames[1])
+        }, 6000)
+      })
+      document.getElementById('button3').addEventListener('click', () => {
+        document.getElementById('video3').style.display = 'block'
+        document.getElementById('video3').play()
+        document.getElementById('video3').currentTime = 0
+        setTimeout(() => {
+          document.getElementById('video3').style.display = 'none'
+          createImageBody(imageFileNames[2])
+        }, 5000)
+      })
+      document.getElementById('button4').addEventListener('click', () => {
+        document.getElementById('video4').style.display = 'block'
+        document.getElementById('video4').play()
+        document.getElementById('video4').currentTime = 0
+        setTimeout(() => {
+          document.getElementById('video4').style.display = 'none'
+          createImageBody(imageFileNames[3])
+        }, 6000)
+      })
+      document.getElementById('button5').addEventListener('click', () => {
+        document.getElementById('video5').style.display = 'block'
+        document.getElementById('video5').play()
+        document.getElementById('video5').currentTime = 0
+        setTimeout(() => {
+          document.getElementById('video5').style.display = 'none'
+          createImageBody(imageFileNames[4])
+        }, 6000)
+      })
+      document.getElementById('button6').addEventListener('click', () => {
+        document.getElementById('video6').style.display = 'block'
+        document.getElementById('video6').play()
+        document.getElementById('video6').currentTime = 0
+        setTimeout(() => {
+          document.getElementById('video6').style.display = 'none'
+          createImageBody(imageFileNames[5])
+        }, 6000)
+      })
+    </script>
+  </body>
+</html>
